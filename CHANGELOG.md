@@ -1,0 +1,3 @@
+- Fixed crash on forge
+- Remove fabric-api dependency
+- Fixed some other bugs

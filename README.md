@@ -1,0 +1,1 @@
+This mod removes the annoying fishing hook bobber that appears when another player hooks you with one. It allows you to see clearly by not rendering it. This is useful when a player attaches a fishing rod to you in pvp situations preventing you from being able to see clearly.
