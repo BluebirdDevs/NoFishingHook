@@ -2,6 +2,7 @@
 
 import dev.kikugie.fletching_table.extension.FletchingTableExtension
 import dev.kikugie.stonecutter.build.StonecutterBuildExtension
+import me.modmuss50.mpp.platforms.modrinth.ModrinthEnvironment
 import me.modmuss50.mpp.ModPublishExtension
 import me.modmuss50.mpp.ReleaseType
 import org.gradle.api.JavaVersion
@@ -409,6 +410,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		projectId = project.prop("publish.modrinth.id")
 		this.accessToken = accessToken
 		minecraftVersions.addAll(listOf(currentVersion) + additionalVersions)
+		environment = ModrinthEnvironment.CLIENT_ONLY
 
 		if (!staging) {
 			deps.required.forEach { dep -> whenNotNull(dep.modrinth) { requires(it) } }
@@ -428,6 +430,8 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		projectId = project.prop("publish.curseforge.id")
 		this.accessToken = accessToken
 		minecraftVersions.addAll(listOf(currentVersion) + additionalVersions)
+		server = false
+		client = true
 
 		deps.required.forEach { dep -> whenNotNull(dep.curseforge) { requires(it) } }
 		deps.optional.forEach { dep -> whenNotNull(dep.curseforge) { optional(it) } }
