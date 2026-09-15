@@ -18,8 +18,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 @Mixin(FishingHookRenderer.class)
 public class FishingHookRendererMixin {
 	//? if >= 1.21.2 {
-	@Inject(at = @At("HEAD"), method = "shouldRender(Lnet/minecraft/world/entity/projectile/FishingHook;Lnet/minecraft/client/renderer/culling/Frustum;DDD)Z", cancellable = true)
+	//? if > 26.2 {
+	@Inject(at = @At("HEAD"), method = "shouldRender(Lnet/minecraft/world/entity/projectile/FishingHook;Lnet/minecraft/client/renderer/culling/Frustum;DDDF)Z", cancellable = true)
+	public void nofishinghook$removeInFirstPerson(FishingHook entity, Frustum culler, double camX, double camY, double camZ, float partialTicks, CallbackInfoReturnable<Boolean> cir) {
+		//?} else {
+	/*@Inject(at = @At("HEAD"), method = "shouldRender(Lnet/minecraft/world/entity/projectile/FishingHook;Lnet/minecraft/client/renderer/culling/Frustum;DDD)Z", cancellable = true)
 	public void nofishinghook$removeInFirstPerson(FishingHook entity, Frustum culler, double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> cir) {
+	*///?}
 		Minecraft client = Minecraft.getInstance();
 		if (entity.getHookedIn() == client.player && client.options.getCameraType().isFirstPerson()) {
 			cir.setReturnValue(false);

@@ -84,6 +84,8 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 
 		val modId = prop("mod.id")
 		val modVersion = prop("mod.version")
+		val modVersionPrefix = prop("mod.version_prefix")
+		val modVersionSuffix = prop("mod.version_suffix")
 		val mcVersion = prop("deps.minecraft")
 		val mcRange = prop("mod.mc_range").ifBlank { "[$mcVersion]" }
 
@@ -95,7 +97,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			"idea",
 		).forEach { apply(plugin = it) }
 
-		version = "$modVersion+$mcVersion-$loader"
+		version = "$modVersionPrefix$modVersion$modVersionSuffix+$mcVersion-$loader"
 
 		extension.requiredJava.set(
 			when {
@@ -135,17 +137,17 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			isNeoForge,
 			isForge,
 			modId,
-			"$modVersion",
+			"$modVersionPrefix$modVersion$modVersionSuffix",
 			mcVersion,
 			extension,
 			extension.requiredJava.get(),
 			stonecutter
 		)
 		configureJava(stonecutter, extension.requiredJava.get())
-		registerBuildAndCollectTask(extension, modVersion)
+		registerBuildAndCollectTask(extension, "$modVersionPrefix$modVersion$modVersionSuffix")
 		configurePublishing(extension, loader, stonecutter,
-            modVersion,
-			"$loader-$modVersion+$mcVersion")
+			"$modVersionPrefix$modVersion$modVersionSuffix",
+			"$loader-$modVersionPrefix$modVersion$modVersionSuffix+$mcVersion")
 	}
 
 	private fun Project.configureJarTask(modId: String, loader: String) {
@@ -226,7 +228,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 						}
 						expand(props.filterKeys { it != "dependencies" })
 					}
-					exclude("META-INF/mods.toml", "META-INF/neoforge.mods.toml", ".cache", "pack.mcmeta")
+					exclude("META-INF/mods.toml", "META-INF/neoforge.mods.toml", "aw/*.cfg", ".cache", "pack.mcmeta")
 					exclude { it.path.startsWith("aw/") && it.name != "${stonecutter.current.version}.accesswidener" }
 				}
 
@@ -234,17 +236,17 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 					val usesLegacyToml = stonecutter.eval(stonecutter.current.version, "<=1.20.3")
 					if (usesLegacyToml) {
 						filesMatching("META-INF/mods.toml") { expand(props) }
-						exclude("META-INF/neoforge.mods.toml", "fabric.mod.json", ".cache", "pack.mcmeta")
+						exclude("META-INF/neoforge.mods.toml", "fabric.mod.json", "aw/*.accesswidener", ".cache", "pack.mcmeta")
 					} else {
 						filesMatching("META-INF/neoforge.mods.toml") { expand(props) }
-						exclude("META-INF/mods.toml", "fabric.mod.json", ".cache", "pack.mcmeta")
+						exclude("META-INF/mods.toml", "fabric.mod.json", "aw/*.accesswidener", ".cache", "pack.mcmeta")
 					}
 					exclude { it.path.startsWith("aw/") && it.name != "${stonecutter.current.version}.cfg" }
 				}
 
 				isForge -> {
 					filesMatching("META-INF/mods.toml") { expand(props) }
-					exclude("META-INF/neoforge.mods.toml", "fabric.mod.json", ".cache")
+					exclude("META-INF/neoforge.mods.toml", "fabric.mod.json", "aw/*.accesswidener", ".cache")
 					exclude { it.path.startsWith("aw/") && it.name != "${stonecutter.current.version}.cfg" }
 				}
 			}
@@ -338,6 +340,7 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 		)
 
 		extensions.configure<ModPublishExtension>("publishMods") {
+			//val mrStaging = prop("publish.modrinth.staging") == "true"
 			val mrStaging = false
 
 			val modrinthAccessToken = env("MODRINTH_API_TOKEN")
